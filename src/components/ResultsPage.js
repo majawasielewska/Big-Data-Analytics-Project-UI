@@ -1,6 +1,5 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import Map from './Map';
 import '../App.css';
 import logo from '../assets/logo.png';
 
@@ -8,10 +7,33 @@ const ResultsPage = () => {
   const location = useLocation();
   const data = location.state?.data;
 
-  // Funkcja do konwersji UTC na czytelny format daty i godziny
-  const formatUTC = (utc) => {
-    const date = new Date(utc * 1000); // Przelicz UTC w sekundach na milisekundy
-    return date.toLocaleString(); // Zwraca format w lokalnym ustawieniu językowym
+  const renderCloudCover = (cloudCover) => {
+    if (!cloudCover || typeof cloudCover !== 'object') {
+      return <p>Cloud cover data not available.</p>;
+    }
+
+    const forecastHours = Object.keys(cloudCover)
+      .filter((key) => key.startsWith('forecast_hour_')) // Filtruj tylko klucze z godzinami prognozy
+      .sort((a, b) => parseInt(a.split('_')[2]) - parseInt(b.split('_')[2])); // Sortuj po numerze godziny
+
+    return (
+      <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
+        <thead>
+          <tr style={{ backgroundColor: '#0077cc', color: '#fff', textAlign: 'left' }}>
+            <th style={{ padding: '10px' }}>Hour</th>
+            <th style={{ padding: '10px' }}>Cloud Cover (%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {forecastHours.map((hourKey, index) => (
+            <tr key={index} style={{ borderBottom: '1px solid #ddd' }}>
+              <td style={{ padding: '10px', textAlign: 'center' }}>{hourKey.split('_')[2]}</td>
+              <td style={{ padding: '10px', textAlign: 'center' }}>{cloudCover[hourKey]}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
   };
 
   return (
@@ -29,12 +51,13 @@ const ResultsPage = () => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'flex-start',
-          gap: '20px',
+          flexDirection: 'column', // Wyśrodkowanie pionowe
         }}
       >
+        {/* Sekcja wyników */}
         <section
           style={{
-            maxWidth: '60%',
+            maxWidth: '80%',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -91,8 +114,8 @@ const ResultsPage = () => {
               <tbody>
                 {data.passes.map((pass, index) => (
                   <tr key={index} style={{ borderBottom: '1px solid #ddd' }}>
-                    <td style={{ padding: '10px', textAlign: 'center' }}>{formatUTC(pass.startUTC)}</td>
-                    <td style={{ padding: '10px', textAlign: 'center' }}>{formatUTC(pass.endUTC)}</td>
+                    <td style={{ padding: '10px', textAlign: 'center' }}>{pass.startUTC}</td>
+                    <td style={{ padding: '10px', textAlign: 'center' }}>{pass.endUTC}</td>
                     <td style={{ padding: '10px', textAlign: 'center' }}>{pass.startAz}°</td>
                     <td style={{ padding: '10px', textAlign: 'center' }}>{pass.endAz}°</td>
                   </tr>
@@ -113,22 +136,9 @@ const ResultsPage = () => {
             }}
           >
             <h2 style={{ color: '#0077cc', fontSize: '1.5rem', marginBottom: '10px' }}>Cloud Cover</h2>
-            <p style={{ fontSize: '1.2rem', color: '#333' }}>
-              Cloud cover percentage: <strong>{data.cloud_cover.join(', ')}%</strong>
-            </p>
+            {renderCloudCover(data.cloud_cover)}
           </div>
         </section>
-
-        {/* Mapa po prawej stronie */}
-        <div
-          style={{
-            width: '40%',
-            height: 'auto',
-            overflow: 'hidden',
-          }}
-        >
-          <Map />
-        </div>
       </main>
     </div>
   );

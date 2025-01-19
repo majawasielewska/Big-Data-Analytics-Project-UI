@@ -9,8 +9,8 @@ function App() {
   const [response, setResponse] = useState(null);
 
   // Pola dla Get Visibility Of Satellite
-  const [satelliteId, setSatelliteId] = useState(5); // ID domyślny
-  const [satelliteName, setSatelliteName] = useState("VANGUARD 1"); // Nazwa domyślna
+  const [satelliteId, setSatelliteId] = useState(10393); // ID domyślny
+  const [satelliteName, setSatelliteName] = useState("DELTA 1 DEB"); // Nazwa domyślna
   const [latitude, setLatitude] = useState(51.7); // Domyślna szerokość geograficzna
   const [longitude, setLongitude] = useState(19.5); // Domyślna długość geograficzna
 
