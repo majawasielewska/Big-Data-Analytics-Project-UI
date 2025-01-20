@@ -72,32 +72,27 @@ function App() {
         alert("Please provide coordinates and a valid start time.");
         return;
       }
-
-      // Construct query parameters
-      const url = `http://13.74.48.118:8000/visibile_satellites?start_time=${startVisibleTime}`;
-      const body = {
-        location: {
-          id: 678, // Optional, backend default
-          name: "string", // Optional, backend default
-          latitude: Number(latitude),
-          longitude: Number(longitude),
-        },
-      };
-
-      console.log("Request body:", body);
-
-      const res = await axios.post(url, body, {
+  
+      // Poprawienie konstrukcji URL z parametrami zapytania
+      const url = `http://13.74.48.118:8000/visibile_satellites?lat=${latitude}&long=${longitude}&start_time=${startVisibleTime}`;
+  
+      console.log("Request URL:", url);
+  
+      // Wysłanie żądania bez ciała (body)
+      const res = await axios.post(url, null, {
         headers: { 'Content-Type': 'application/json' },
       });
-
+  
       console.log("Response data:", res.data);
-
+  
+      // Nawigacja do strony wyników z danymi
       navigate('/results2', { state: { data: res.data } });
     } catch (error) {
       console.error("Error fetching visible satellites:", error.response?.data || error.message);
       alert("An error occurred. Please check the console for details.");
     }
   };
+  
 
   return (
     <div className="app">
