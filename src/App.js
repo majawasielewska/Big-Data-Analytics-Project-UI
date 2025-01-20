@@ -8,17 +8,16 @@ import { useNavigate } from 'react-router-dom';
 function App() {
   const [response, setResponse] = useState(null);
 
-  // Pola dla Get Visibility Of Satellite
-  const [satelliteId, setSatelliteId] = useState(10393); // ID domyślny
-  const [satelliteName, setSatelliteName] = useState("DELTA 1 DEB"); // Nazwa domyślna
-  const [latitude, setLatitude] = useState(51.7); // Domyślna szerokość geograficzna
-  const [longitude, setLongitude] = useState(19.5); // Domyślna długość geograficzna
+  // Fields for Get Visibility Of Satellite
+  const [satelliteId, setSatelliteId] = useState(10393);
+  const [satelliteName, setSatelliteName] = useState("DELTA 1 DEB");
+  const [latitude, setLatitude] = useState(51.7);
+  const [longitude, setLongitude] = useState(19.5);
 
-  // Pola dla Get Visible Satellites
-  const [startVisibleTime, setStartVisibleTime] = useState(null);
-  const [endVisibleTime, setEndVisibleTime] = useState(null);
+  // Field for Get Visible Satellites
+  const [startVisibleTime, setStartVisibleTime] = useState(1737389628);
 
-  // Obsługa kliknięcia na mapie
+  // Handle map click
   const handleMapClick = (coords) => {
     setLatitude(coords.latitude);
     setLongitude(coords.longitude);
@@ -41,27 +40,25 @@ function App() {
 
       const body = {
         satellite: {
-          id: Number(satelliteId), // Konwersja na liczbę
-          name: satelliteName.trim(), // Usunięcie białych znaków
+          id: Number(satelliteId),
+          name: satelliteName.trim(),
         },
         location: {
-          id: 678, // Domyślny ID
-          name: "string", // Domyślna nazwa
-          latitude: Number(latitude), // Konwersja na liczbę
-          longitude: Number(longitude), // Konwersja na liczbę
+          id: 678,
+          name: "string",
+          latitude: Number(latitude),
+          longitude: Number(longitude),
         },
       };
 
       console.log("Request body:", body);
 
-      // Wysyłanie zapytania z body
       const res = await axios.post(url, body, {
         headers: { 'Content-Type': 'application/json' },
       });
 
       console.log("Response data:", res.data);
 
-      // Przekierowanie na stronę z wynikami
       navigate('/results', { state: { data: res.data } });
     } catch (error) {
       console.error("Error fetching visibility of satellite:", error.response?.data || error.message);
@@ -71,21 +68,34 @@ function App() {
 
   const fetchVisibleSatellites = async () => {
     try {
-      if (!latitude || !longitude || !startVisibleTime || !endVisibleTime) {
-        alert("Please provide coordinates and a valid time range.");
+      if (!latitude || !longitude || !startVisibleTime) {
+        alert("Please provide coordinates and a valid start time.");
         return;
       }
 
+      // Construct query parameters
+      const url = `http://13.74.48.118:8000/visibile_satellites?start_time=${startVisibleTime}`;
       const body = {
-        location: { latitude: latitude, longitude: longitude },
-        start_time: startVisibleTime,
-        end_time: endVisibleTime,
+        location: {
+          id: 678, // Optional, backend default
+          name: "string", // Optional, backend default
+          latitude: Number(latitude),
+          longitude: Number(longitude),
+        },
       };
 
-      const res = await axios.post('http://13.74.48.118:8000/visible_satellites', body);
-      setResponse(res.data);
+      console.log("Request body:", body);
+
+      const res = await axios.post(url, body, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      console.log("Response data:", res.data);
+
+      navigate('/results2', { state: { data: res.data } });
     } catch (error) {
-      console.error("Error fetching visible satellites:", error);
+      console.error("Error fetching visible satellites:", error.response?.data || error.message);
+      alert("An error occurred. Please check the console for details.");
     }
   };
 
@@ -108,6 +118,7 @@ function App() {
         </section>
 
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '40px', height: '800px' }}>
+          {/* Section for Get Visibility of Satellite */}
           <div style={{ width: '600px', padding: '20px', border: '1px solid #ddd', borderRadius: '8px' }}>
             <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>
               Check whether a particular satellite will be visible in your sky.
@@ -159,6 +170,7 @@ function App() {
 
           <Map onLocationSelect={handleMapClick} />
 
+          {/* Section for Get Visible Satellites */}
           <div style={{ width: '600px', padding: '20px', border: '1px solid #ddd', borderRadius: '8px' }}>
             <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>
               Check which satellites will be visible in your sky.
@@ -179,16 +191,9 @@ function App() {
             />
             <input
               type="number"
-              placeholder="Start Time"
+              placeholder="Start Time (Unix Timestamp)"
               value={startVisibleTime || ""}
               onChange={(e) => setStartVisibleTime(Number(e.target.value))}
-              style={{ width: '96%', padding: '10px', marginBottom: '10px' }}
-            />
-            <input
-              type="number"
-              placeholder="End Time"
-              value={endVisibleTime || ""}
-              onChange={(e) => setEndVisibleTime(Number(e.target.value))}
               style={{ width: '96%', padding: '10px', marginBottom: '10px' }}
             />
             <button

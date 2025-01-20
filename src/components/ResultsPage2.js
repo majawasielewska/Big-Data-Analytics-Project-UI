@@ -15,41 +15,22 @@ import logo from '../assets/logo.png';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const ResultsPage = () => {
+const ResultsPage2 = () => {
   const location = useLocation();
   const data = location.state?.data;
 
-  // Logowanie danych do konsoli
-  console.log("Data received in ResultsPage:", data);
-
-  // Sprawdzenie, czy cloud_cover istnieje
-  if (!data || !data.cloud_cover) {
-    console.error("Cloud cover data is missing!");
-  }
-
   const formatUTC = (utc) => {
-    const date = new Date(utc * 1000); // Konwersja z sekund na milisekundy
-    return date.toLocaleString('en-US', { timeZone: 'UTC' }); // Formatowanie w strefie UTC
+    const date = new Date(utc * 1000); // Convert seconds to milliseconds
+    return date.toLocaleString('en-US', { timeZone: 'UTC' });
   };
 
   const renderCloudCoverChart = (cloudCover) => {
-    if (!cloudCover || typeof cloudCover !== 'object') {
-      return <p>Cloud cover data not available for chart.</p>;
-    }
-
-    const labels = Object.keys(cloudCover)
-      .filter((key) => key.startsWith('forecast_hour_'))
-      .sort((a, b) => parseInt(a.split('_')[2]) - parseInt(b.split('_')[2]))
-      .map((key) => `Hour ${key.split('_')[2]}`);
-
-    const dataPoints = labels.map((label, index) => cloudCover[`forecast_hour_${index + 1}`]);
-
     const chartData = {
-      labels: labels,
+      labels: ['Cloud Cover'],
       datasets: [
         {
           label: 'Cloud Cover (%)',
-          data: dataPoints,
+          data: [cloudCover],
           backgroundColor: 'rgba(0, 119, 204, 0.5)',
           borderColor: '#0077cc',
           borderWidth: 1,
@@ -71,6 +52,7 @@ const ResultsPage = () => {
       scales: {
         y: {
           beginAtZero: true,
+          max: 100,
         },
       },
     };
@@ -104,11 +86,12 @@ const ResultsPage = () => {
             alignItems: 'center',
           }}
         >
-          <h1 style={{ textAlign: 'center' }}>Satellite Visibility Results</h1>
+          <h1 style={{ textAlign: 'center' }}>Visible Satellites Results</h1>
           <p style={{ textAlign: 'center', marginBottom: '20px' }}>
-            Below are the results for the satellite visibility based on your input.
+            Below are the results for the visible satellites based on your input.
           </p>
 
+          {/* Satellite Details */}
           <div
             style={{
               border: '1px solid #ddd',
@@ -120,15 +103,21 @@ const ResultsPage = () => {
               marginBottom: '20px',
             }}
           >
-            <h2 style={{ color: '#0077cc', fontSize: '1.5rem', marginBottom: '10px' }}>Satellite Details</h2>
-            <p>
-              <strong>ID:</strong> {data.satellite.id}
-            </p>
-            <p>
-              <strong>Name:</strong> {data.satellite.name}
-            </p>
+            <h2 style={{ color: '#0077cc', fontSize: '1.5rem', marginBottom: '10px' }}>Satellites</h2>
+            {data.satellites.length > 0 ? (
+              <ul>
+                {data.satellites.map((sat, index) => (
+                  <li key={index}>
+                    <strong>ID:</strong> {sat.id}, <strong>Name:</strong> {sat.name}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No satellites available.</p>
+            )}
           </div>
 
+          {/* Passes Details */}
           <div
             style={{
               border: '1px solid #ddd',
@@ -164,6 +153,7 @@ const ResultsPage = () => {
           </div>
         </section>
 
+        {/* Cloud Cover Chart */}
         <section
           style={{
             width: '40%',
@@ -173,7 +163,7 @@ const ResultsPage = () => {
             backgroundColor: '#f9f9f9',
             boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
             marginLeft: '20px',
-            marginTop: '100px',
+            marginTop: '125px',
           }}
         >
           <h2 style={{ color: '#0077cc', fontSize: '1.5rem', marginBottom: '10px' }}>Cloud Cover Chart</h2>
@@ -184,4 +174,4 @@ const ResultsPage = () => {
   );
 };
 
-export default ResultsPage;
+export default ResultsPage2;
