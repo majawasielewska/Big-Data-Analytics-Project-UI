@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Bar } from 'react-chartjs-2';
 import {
@@ -18,6 +18,8 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 const ResultsPage2 = () => {
   const location = useLocation();
   const data = location.state?.data;
+
+  const [selectedSatellite, setSelectedSatellite] = useState(null);
 
   const formatUTC = (utc) => {
     const date = new Date(utc * 1000); // Convert seconds to milliseconds
@@ -58,6 +60,10 @@ const ResultsPage2 = () => {
     };
 
     return <Bar data={chartData} options={options} />;
+  };
+
+  const handleSatelliteClick = (satellite) => {
+    setSelectedSatellite(satellite);
   };
 
   return (
@@ -101,14 +107,28 @@ const ResultsPage2 = () => {
               backgroundColor: '#f9f9f9',
               boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
               marginBottom: '20px',
+              maxHeight: '300px',
+              overflowY: 'scroll',
             }}
           >
             <h2 style={{ color: '#0077cc', fontSize: '1.5rem', marginBottom: '10px' }}>Satellites</h2>
             {data.satellites.length > 0 ? (
-              <ul>
+              <ul style={{ listStyleType: 'none', padding: 0 }}>
                 {data.satellites.map((sat, index) => (
-                  <li key={index}>
-                    <strong>ID:</strong> {sat.id}, <strong>Name:</strong> {sat.name}
+                  <li
+                    key={index}
+                    onClick={() => handleSatelliteClick(sat)}
+                    style={{
+                      cursor: 'pointer',
+                      padding: '10px',
+                      margin: '5px 0',
+                      backgroundColor: selectedSatellite && selectedSatellite.id === sat.id ? '#005f99' : '#0077cc',
+                      color: '#fff',
+                      borderRadius: '5px',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {sat.name}
                   </li>
                 ))}
               </ul>
@@ -118,39 +138,45 @@ const ResultsPage2 = () => {
           </div>
 
           {/* Passes Details */}
-          <div
-            style={{
-              border: '1px solid #ddd',
-              borderRadius: '10px',
-              padding: '20px',
-              width: '100%',
-              backgroundColor: '#f9f9f9',
-              boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-              marginBottom: '20px',
-            }}
-          >
-            <h2 style={{ color: '#0077cc', fontSize: '1.5rem', marginBottom: '10px' }}>Satellite Passes</h2>
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
-              <thead>
-                <tr style={{ backgroundColor: '#0077cc', color: '#fff', textAlign: 'left' }}>
-                  <th style={{ padding: '10px' }}>Start UTC</th>
-                  <th style={{ padding: '10px' }}>End UTC</th>
-                  <th style={{ padding: '10px' }}>Start Azimuth</th>
-                  <th style={{ padding: '10px' }}>End Azimuth</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.passes.map((pass, index) => (
-                  <tr key={index} style={{ borderBottom: '1px solid #ddd' }}>
-                    <td style={{ padding: '10px', textAlign: 'center' }}>{formatUTC(pass.startUTC)}</td>
-                    <td style={{ padding: '10px', textAlign: 'center' }}>{formatUTC(pass.endUTC)}</td>
-                    <td style={{ padding: '10px', textAlign: 'center' }}>{pass.startAz}°</td>
-                    <td style={{ padding: '10px', textAlign: 'center' }}>{pass.endAz}°</td>
+          {selectedSatellite && (
+            <div
+              style={{
+                border: '1px solid #ddd',
+                borderRadius: '10px',
+                padding: '20px',
+                width: '100%',
+                backgroundColor: '#f9f9f9',
+                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                marginBottom: '20px',
+              }}
+            >
+              <h2 style={{ color: '#0077cc', fontSize: '1.5rem', marginBottom: '10px' }}>
+                Passes for Satellite {selectedSatellite.name}
+              </h2>
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#0077cc', color: '#fff', textAlign: 'left' }}>
+                    <th style={{ padding: '10px' }}>Start UTC</th>
+                    <th style={{ padding: '10px' }}>End UTC</th>
+                    <th style={{ padding: '10px' }}>Start Azimuth</th>
+                    <th style={{ padding: '10px' }}>End Azimuth</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {data.passes
+                    .filter((pass) => pass.satid === selectedSatellite.id)
+                    .map((pass, index) => (
+                      <tr key={index} style={{ borderBottom: '1px solid #ddd' }}>
+                        <td style={{ padding: '10px', textAlign: 'center' }}>{formatUTC(pass.startUTC)}</td>
+                        <td style={{ padding: '10px', textAlign: 'center' }}>{formatUTC(pass.endUTC)}</td>
+                        <td style={{ padding: '10px', textAlign: 'center' }}>{pass.startAz}°</td>
+                        <td style={{ padding: '10px', textAlign: 'center' }}>{pass.endAz}°</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </section>
 
         {/* Cloud Cover Chart */}
