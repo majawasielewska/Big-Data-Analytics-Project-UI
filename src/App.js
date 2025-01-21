@@ -9,10 +9,10 @@ function App() {
   const [response, setResponse] = useState(null);
 
   // Fields for Get Visibility Of Satellite
-  const [satelliteId, setSatelliteId] = useState(10393);
-  const [satelliteName, setSatelliteName] = useState("DELTA 1 DEB");
-  const [latitude, setLatitude] = useState(51.7);
-  const [longitude, setLongitude] = useState(19.5);
+  const [satelliteId, setSatelliteId] = useState();
+  const [satelliteName, setSatelliteName] = useState("");
+  const [latitude, setLatitude] = useState();
+  const [longitude, setLongitude] = useState();
 
   // Field for Get Visible Satellites
   const [hoursFromNow, setHoursFromNow] = useState(1);
@@ -126,7 +126,7 @@ function App() {
               Satellite ID
               <input
                 type="number"
-                placeholder="Satellite ID"
+                placeholder="E.g. 10393"
                 value={satelliteId || ""}
                 onChange={(e) => setSatelliteId(Number(e.target.value))}
               />
@@ -135,7 +135,7 @@ function App() {
               Satellite Name
               <input
                 type="text"
-                placeholder="Satellite Name"
+                placeholder="E.g. DELTA 1 DEB"
                 value={satelliteName || ""}
                 onChange={(e) => setSatelliteName(e.target.value)}
               />
@@ -144,7 +144,7 @@ function App() {
               Latitude
               <input
                 type="number"
-                placeholder="Latitude"
+                placeholder="E.g. 51.7"
                 value={latitude || ""}
                 onChange={(e) => setLatitude(Number(e.target.value))}
               />
@@ -153,7 +153,7 @@ function App() {
               Longitude
               <input
                 type="number"
-                placeholder="Longitude"
+                placeholder="E.g. 19.5"
                 value={longitude || ""}
                 onChange={(e) => setLongitude(Number(e.target.value))}
               />
@@ -172,7 +172,7 @@ function App() {
               Latitude
               <input
                 type="number"
-                placeholder="Latitude"
+                placeholder="E.g. 51.7"
                 value={latitude || ""}
                 onChange={(e) => setLatitude(Number(e.target.value))}
               />
@@ -181,16 +181,16 @@ function App() {
               Longitude
               <input
                 type="number"
-                placeholder="Longitude"
+                placeholder="E.g. 19.5"
                 value={longitude || ""}
                 onChange={(e) => setLongitude(Number(e.target.value))}
               />
             </label>
             <label>
-              Hours from now (max 24)
+              Hours from now (maximum=24)
               <input
                 type="number"
-                placeholder="Hours from now (max 24)"
+                placeholder="Hours from now (maximum 24)"
                 value={hoursFromNow}
                 onChange={(e) => setHoursFromNow(Math.min(Math.max(Number(e.target.value), 1), 24))}
               />
